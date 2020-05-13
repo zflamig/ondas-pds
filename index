@@ -1,0 +1,326 @@
+const content = `
+          ListFile: dir.list
+          Product: DAA   SSS/DAA
+          Product: DHR   SSS/DHR
+          Product: DPR   SSS/DPR
+          Product: DSP   SSS/DSP
+          Product: DTA   SSS/DTA
+          Product: DU3   SSS/DU3
+          Product: DU6   SSS/DU6
+          Product: DOD   SSS/DOD
+          Product: DSD   SSS/DSD
+          Product: DVL   SSS/DVL
+          Product: EET   SSS/EET
+          Product: GSM   SSS/GSM
+          Product: HHC   SSS/HHC
+          Product: H0Z   SSS/H0Z
+          Product: H1Z   SSS/H1Z
+          Product: H2Z   SSS/H2Z
+          Product: H3Z   SSS/H3Z
+          Product: HAZ   SSS/HAZ
+          Product: HBZ   SSS/HBZ
+          Product: H0V   SSS/H0V
+          Product: H1V   SSS/H1V
+          Product: H2V   SSS/H2V
+          Product: H3V   SSS/H3V
+          Product: HAV   SSS/HAV
+          Product: HBV   SSS/HBV
+          Product: H0C   SSS/H0C
+          Product: H1C   SSS/H1C
+          Product: H2C   SSS/H2C
+          Product: H3C   SSS/H3C
+          Product: HAC   SSS/HAC
+          Product: HBC   SSS/HBC
+          Product: N0C   SSS/N0C
+          Product: N0H   SSS/N0H
+          Product: N0K   SSS/N0K
+          Product: N0M   SSS/N0M
+          Product: N0Q   SSS/N0Q
+          Product: N0R   SSS/N0R
+          Product: N0S   SSS/N0S
+          Product: N0U   SSS/N0U
+          Product: N0V   SSS/N0V
+          Product: N0X   SSS/N0X
+          Product: N0Z   SSS/N0Z
+          Product: N1C   SSS/N1C
+          Product: N1H   SSS/N1H
+          Product: N1K   SSS/N1K
+          Product: N1M   SSS/N1M
+          Product: N1P   SSS/N1P
+          Product: N1Q   SSS/N1Q
+          Product: N1S   SSS/N1S
+          Product: N1U   SSS/N1U
+          Product: N1X   SSS/N1X
+          Product: N2C   SSS/N2C
+          Product: N2H   SSS/N2H
+          Product: N2K   SSS/N2K
+          Product: N2M   SSS/N2M
+          Product: N2Q   SSS/N2Q
+          Product: N2S   SSS/N2S
+          Product: N2U   SSS/N2U
+          Product: N2X   SSS/N2X
+          Product: N3C   SSS/N3C
+          Product: N3H   SSS/N3H
+          Product: N3K   SSS/N3K
+          Product: N3M   SSS/N3M
+          Product: N3X   SSS/N3X
+          Product: N3Q   SSS/N3Q
+          Product: N3S   SSS/N3S
+          Product: N3U   SSS/N3U
+          Product: NAC   SSS/NAC
+          Product: NAH   SSS/NAH
+          Product: NAK   SSS/NAK
+          Product: NAM   SSS/NAM
+          Product: NAQ   SSS/NAQ
+          Product: NAU   SSS/NAU
+          Product: NAX   SSS/NAX
+          Product: NBC   SSS/NBC
+          Product: NBH   SSS/NBH
+          Product: NBK   SSS/NBK
+          Product: NBM   SSS/NBM
+          Product: NBQ   SSS/NBQ
+          Product: NBU   SSS/NBU
+          Product: NBX   SSS/NBX
+          Product: NCR   SSS/NCR
+          Product: NET   SSS/NET
+          Product: NMD   SSS/NMD
+          Product: NST   SSS/NST
+          Product: NVL   SSS/NVL
+          Product: NVW   SSS/NVW
+          Product: NTP   SSS/NTP
+          Product: OHA   SSS/OHA
+          Product: PTA   SSS/PTA
+          Product: SPD   SSS/SPD
+          Product: TZL   SSS/TZL
+          Product: TR0   SSS/TR0
+          Product: TR1   SSS/TR1
+          Product: TR2   SSS/TR2
+          Product: TV0   SSS/TV0
+          Product: TV1   SSS/TV1
+          Product: TV2   SSS/TV2
+          Product: TZ0   SSS/TZ0
+          Product: TZ1   SSS/TZ1
+          Product: TZ2   SSS/TZ2
+
+          Site: KABR
+          Site: KABX
+          Site: KADW
+          Site: KAKQ
+          Site: KAMA
+          Site: KAMX
+          Site: KAPX
+          Site: KARX
+          Site: KATX
+          Site: KBBX
+          Site: KBGM
+          Site: KBHX
+          Site: KBIS
+          Site: KBLX
+          Site: KBMX
+          Site: KBOX
+          Site: KBRO
+          Site: KBUF
+          Site: KBYX
+          Site: KCAE
+          Site: KCBW
+          Site: KCBX
+          Site: KCCX
+          Site: KCLE
+          Site: KCLX
+          Site: KCRP
+          Site: KCXX
+          Site: KCYS
+          Site: KDAX
+          Site: KDDC
+          Site: KDFX
+          Site: KDGX
+          Site: KDIX
+          Site: KDLH
+          Site: KDMX
+          Site: KDOX
+          Site: KDTX
+          Site: KDVN
+          Site: KDYX
+          Site: KEAX
+          Site: KEMX
+          Site: KENX
+          Site: KEOX
+          Site: KEPZ
+          Site: KESX
+          Site: KEVX
+          Site: KEWX
+          Site: KFCX
+          Site: KFDR
+          Site: KFDX
+          Site: KFFC
+          Site: KFSD
+          Site: KFSX
+          Site: KFTG
+          Site: KFWS
+          Site: KGGW
+          Site: KGJX
+          Site: KGLD
+          Site: KGRB
+          Site: KGRK
+          Site: KGRR
+          Site: KGSP
+          Site: KGWX
+          Site: KGYX
+          Site: KHDX
+          Site: KHGX
+          Site: KHNX
+          Site: KHPX
+          Site: KHTX
+          Site: KICT
+          Site: KICX
+          Site: KILN
+          Site: KILX
+          Site: KIND
+          Site: KINX
+          Site: KIWA
+          Site: KIWX
+          Site: KJAX
+          Site: KJGX
+          Site: KJKL
+          Site: KLBB
+          Site: KLCH
+          Site: KLGX
+          Site: KLIX
+          Site: KLNX
+          Site: KLOT
+          Site: KLRX
+          Site: KLSX
+          Site: KLTX
+          Site: KLVX
+          Site: KLWX
+          Site: KLZK
+          Site: KMAF
+          Site: KMAX
+          Site: KMBX
+          Site: KMHX
+          Site: KMKX
+          Site: KMLB
+          Site: KMOB
+          Site: KMPX
+          Site: KMQT
+          Site: KMRX
+          Site: KMSX
+          Site: KMTX
+          Site: KMUX
+          Site: KMVX
+          Site: KMXX
+          Site: KNKX
+          Site: KNQA
+          Site: KOAX
+          Site: KOHX
+          Site: KOKX
+          Site: KOTX
+          Site: KPAH
+          Site: KPBZ
+          Site: KPDT
+          Site: KPOE
+          Site: KPUX
+          Site: KRAX
+          Site: KRGX
+          Site: KRIW
+          Site: KRLX
+          Site: KRTX
+          Site: KSFX
+          Site: KSGF
+          Site: KSHV
+          Site: KSJT
+          Site: KSOX
+          Site: KSRX
+          Site: KTBW
+          Site: KTFX
+          Site: KTLH
+          Site: KTLX
+          Site: KTWX
+          Site: KTYX
+          Site: KUDX
+          Site: KUEX
+          Site: KVNX
+          Site: KVAX
+          Site: KVBX
+          Site: KVTX
+          Site: KVWX
+          Site: KYUX
+          Site: PABC
+          Site: PACG
+          Site: PAEC
+          Site: PAHG
+          Site: PAIH
+          Site: PAKC
+          Site: PAPD
+          Site: PGUA
+          Site: PHKI
+          Site: PHKM
+          Site: PHMO
+          Site: PHWA
+          Site: TADW
+          Site: TATL
+          Site: TBNA
+          Site: TBOS
+          Site: TBWI
+          Site: TCLT
+          Site: TCMH
+          Site: TCVG
+          Site: TDAL
+          Site: TDAY
+          Site: TDCA
+          Site: TDEN
+          Site: TDFW
+          Site: TDTW
+          Site: TEWR
+          Site: TFLL
+          Site: THOU
+          Site: TIAD
+          Site: TIAH
+          Site: TICH
+          Site: TIDS
+          Site: TJFK
+          Site: TJUA
+          Site: TLAS
+          Site: TLVE
+          Site: TMCI
+          Site: TMCO
+          Site: TMDW
+          Site: TMEM
+          Site: TMIA
+          Site: TMKE
+          Site: TMSP
+          Site: TMSY
+          Site: TOKC
+          Site: TORD
+          Site: TPBI
+          Site: TPHL
+          Site: TPHX
+          Site: TPIT
+          Site: TRDU
+          Site: TSDF
+          Site: TSJU
+          Site: TSLC
+          Site: TSTL
+          Site: TTPA
+          Site: TTUL
+          Site: TJRV
+          Site: TJBQ
+          `;
+          exports.handler = (event, ctx, cb) => {
+            const response = {
+                status: '200',
+                statusDescription: 'OK',
+                headers: {
+                    'content-type': [{
+                        key: 'Content-Type',
+                        value: 'text/html'
+                    }],
+                    'content-encoding': [{
+                        key: 'Content-Encoding',
+                        value: 'UTF-8'
+                    }],
+                },
+                body: content,
+            };
+            cb(null, response);
+          }

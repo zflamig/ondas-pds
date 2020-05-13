@@ -1,0 +1,281 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  Nonce:
+    Type: String
+
+  Bucket:
+    Default: unidata-nexrad-level3
+    Type: String
+
+  BucketDomainName:
+    Default: unidata-nexrad-level3.s3.amazonaws.com
+    Type: String
+
+Outputs:
+  Host:
+    Value: !GetAtt Distribution.DomainName
+
+Resources:
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        PriceClass: PriceClass_100
+        Enabled: true
+        Origins:
+        - Id: !Ref Bucket
+          DomainName: !Ref BucketDomainName
+          S3OriginConfig: {}
+        DefaultCacheBehavior:
+          TargetOriginId: !Ref Bucket
+          ForwardedValues:
+            QueryString: true
+          ViewerProtocolPolicy: redirect-to-https
+        CacheBehaviors:
+        - TargetOriginId: !Ref Bucket
+          PathPattern: *.cfg
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          DefaultTTL: 600
+          LambdaFunctionAssociations:
+            - EventType: origin-request
+              LambdaFunctionARN: !GetAtt ConfigLambdaVersion.FunctionArn
+        - TargetOriginId: !Ref Bucket
+          PathPattern: /*/dir.list
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          DefaultTTL: 600
+          LambdaFunctionAssociations:
+            - EventType: origin-request
+              LambdaFunctionARN: !GetAtt DirListLambdaVersion.FunctionArn
+        - TargetOriginId: !Ref Bucket
+          PathPattern: /???/???/*
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          DefaultTTL: 600
+          LambdaFunctionAssociations:
+            - EventType: viewer-request
+              LambdaFunctionARN: !GetAtt FileRedirectLambdaVersion.FunctionArn
+
+
+  ConfigLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt GlobalLambdaRole.Arn
+      Runtime: nodejs12.x
+      Handler: index.handler
+      Code:
+        S3Bucket: ondas-zac
+        S3Key: config.zip
+          
+
+  ConfigLambdaVersion:
+    Type: Custom::LatestLambdaVersion
+    Properties:
+      ServiceToken: !GetAtt PublishLambdaVersion.Arn
+      FunctionName: !Ref ConfigLambda
+      Nonce: !Ref Nonce
+
+  DirListLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt GlobalLambdaRole.Arn
+      Runtime: nodejs12.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          var AWS = require('aws-sdk');
+          exports.handler = (event, ctx, cb) => {
+            var request = event.Records[0].cf.request;
+            var parts = request.uri.split('/');
+            console.log(parts);
+            var radar = parts[1];
+            var product = parts[2];
+            var date = new Date();
+            var year = date.getFullYear();
+            var month = ("0"+(date.getMonth()+1)).slice(-2);
+            var day = ("0" + date.getDate()).slice(-2);
+            var s3 = new AWS.S3({
+              apiVersion: '2006-03-01',
+              params: { Bucket: 'unidata-nexrad-level3' }
+            });
+            s3.makeUnauthenticatedRequest(
+              'listObjectsV2',
+              {Bucket: 'unidata-nexrad-level3', Prefix: radar + '_' + product + '_' + year + '_' + month + '_' + day},
+              function(err, s3data) {
+              if (err) console.log(err, err.stack)
+              else {
+                console.log(radar + '_' + product + '_' + year + '_' + month + '_' + day)
+                console.log(s3data.Contents)
+                var content = '';
+                var contents = s3data.Contents;
+                contents.forEach(function (c) {
+                  var parts = c.Key.split('_');
+                  var file = parts[2] + parts[3] + parts[4] + '_' + parts[5] + parts[6];
+                  content = content + file + "\n";
+                });
+                const response = {
+                  status: '200',
+                  statusDescription: 'OK',
+                  headers: {
+                      'content-type': [{
+                          key: 'Content-Type',
+                          value: 'text/html'
+                      }],
+                      'content-encoding': [{
+                          key: 'Content-Encoding',
+                          value: 'UTF-8'
+                      }],
+                  },
+                  body: content,
+              };
+              cb(null, response);
+              }
+            })
+          }
+
+  DirListLambdaVersion:
+    Type: Custom::LatestLambdaVersion
+    Properties:
+      ServiceToken: !GetAtt PublishLambdaVersion.Arn
+      FunctionName: !Ref DirListLambda
+      Nonce: !Ref Nonce
+
+  FileRedirectLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt GlobalLambdaRole.Arn
+      Runtime: nodejs12.x
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          var AWS = require('aws-sdk');
+          exports.handler = (event, ctx, cb) => {
+            var request = event.Records[0].cf.request;
+            var parts = request.uri.split('/');
+            var radar = parts[1];
+            var product = parts[2];
+            var date = parts[3];
+            var year = date.substring(0, 4);
+            var month = date.substring(4, 6);
+            var day = date.substring(6, 8);
+            var hour = date.substring(9, 11);
+            var minute = date.substring(11, 13);
+            var s3 = new AWS.S3({
+              apiVersion: '2006-03-01',
+              params: { Bucket: 'unidata-nexrad-level3' }
+            });
+            s3.makeUnauthenticatedRequest(
+              'listObjectsV2',
+              {Bucket: 'unidata-nexrad-level3', Prefix: radar + '_' + product + '_' + year + '_' + month + '_' + day + '_' + hour + '_' + minute},
+              function(err, s3data) {
+              if (err) console.log(err, err.stack)
+              else {
+                var file = s3data.Contents[0].Key
+                var url = 'https://unidata-nexrad-level3.s3.amazonaws.com/' + file
+                const response = {
+                    status: '302',
+                    statusDescription: 'Found',
+                    headers: {
+                        location: [{
+                            key: 'Location',
+                            value: url,
+                        }],
+                    },
+                };
+                cb(null, response);
+              }
+            })
+          }
+
+  FileRedirectLambdaVersion:
+    Type: Custom::LatestLambdaVersion
+    Properties:
+      ServiceToken: !GetAtt PublishLambdaVersion.Arn
+      FunctionName: !Ref FileRedirectLambda
+      Nonce: !Ref Nonce
+
+  GlobalLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+            - edgelambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Custom resource for getting latest version of a lambda,
+  # as required by CloudFront.
+
+  PublishLambdaVersion:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Role: !GetAtt PublishLambdaVersionRole.Arn
+      Code:
+        ZipFile: |
+          const {Lambda} = require('aws-sdk')
+          const {send, SUCCESS, FAILED} = require('cfn-response')
+          const lambda = new Lambda()
+          exports.handler = (event, context) => {
+            const {RequestType, ResourceProperties: {FunctionName}} = event
+            if (RequestType == 'Delete') return send(event, context, SUCCESS)
+            lambda.publishVersion({FunctionName}, (err, {FunctionArn}) => {
+              err
+                ? send(event, context, FAILED, err)
+                : send(event, context, SUCCESS, {FunctionArn})
+            })
+          }
+  PublishLambdaVersionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+      - PolicyName: PublishVersion
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: lambda:PublishVersion
+            Resource: '*'
